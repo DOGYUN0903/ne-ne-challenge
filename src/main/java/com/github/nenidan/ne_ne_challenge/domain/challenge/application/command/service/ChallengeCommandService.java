@@ -11,7 +11,7 @@ import com.github.nenidan.ne_ne_challenge.domain.challenge.domain.model.entity.H
 import com.github.nenidan.ne_ne_challenge.domain.challenge.domain.model.type.ChallengeStatus;
 import com.github.nenidan.ne_ne_challenge.domain.challenge.domain.repository.ChallengeRepository;
 import com.github.nenidan.ne_ne_challenge.domain.challenge.domain.repository.HistoryRepository;
-import com.github.nenidan.ne_ne_challenge.global.client.point.PointClient;
+import com.github.nenidan.ne_ne_challenge.domain.point.application.service.PointService;
 import com.github.nenidan.ne_ne_challenge.global.client.user.UserClient;
 import lombok.RequiredArgsConstructor;
 import org.redisson.api.RLock;
@@ -35,7 +35,7 @@ public class ChallengeCommandService {
 
     private final UserClient userClient;
 
-    private final PointClient pointClient;
+    private final PointService pointService;
 
     private final RedissonClient redissonClient;
 
@@ -45,12 +45,12 @@ public class ChallengeCommandService {
 
     public Long createChallenge(Long requesterId, CreateChallengeCommand command) {
         verifyUserExists(requesterId);
-        int userPoint = pointClient.getMyBalance(requesterId).getBalance();
+        int userPoint = pointService.getMyBalance(requesterId).getBalance();
 
         Challenge newChallenge = Challenge.createChallenge(requesterId, userPoint, challengeMapper.toInfo(command));
 
         Challenge savedChallenge = challengeRepository.save(newChallenge);
-        pointClient.decreasePoint(requesterId, savedChallenge.getParticipationFee(), "CHALLENGE_ENTRY");
+        pointService.decreasePoint(requesterId, savedChallenge.getParticipationFee(), "CHALLENGE_ENTRY");
         return savedChallenge.getId();
     }
 
@@ -66,7 +66,7 @@ public class ChallengeCommandService {
 
         List<Long> participantIdList = challenge.getParticipantIdList();
         challenge.deleteChallenge(requesterId);
-        pointClient.refundPoints(participantIdList, challenge.getParticipationFee());
+        pointService.refundPoints(participantIdList, challenge.getParticipationFee());
     }
 
     public void joinChallenge(Long requesterId, Long challengeId) {
@@ -77,11 +77,11 @@ public class ChallengeCommandService {
             if (isLocked) {
                 try {
                     verifyUserExists(requesterId);
-                    int userPoint = pointClient.getMyBalance(requesterId).getBalance();
+                    int userPoint = pointService.getMyBalance(requesterId).getBalance();
                     Challenge challenge = getChallengeOrThrow(challengeId);
 
                     challenge.join(requesterId, userPoint);
-                    pointClient.decreasePoint(requesterId, challenge.getParticipationFee(), "CHALLENGE_ENTRY");
+                    pointService.decreasePoint(requesterId, challenge.getParticipationFee(), "CHALLENGE_ENTRY");
                 } finally {
                     lock.unlock();
                 }
@@ -97,7 +97,7 @@ public class ChallengeCommandService {
 
         challenge.quit(requesterId);
         if (challenge.getStatus() == ChallengeStatus.WAITING) {
-            pointClient.refundPoints(List.of(requesterId), challenge.getParticipationFee());
+            pointService.refundPoints(List.of(requesterId), challenge.getParticipationFee());
         }
     }
 

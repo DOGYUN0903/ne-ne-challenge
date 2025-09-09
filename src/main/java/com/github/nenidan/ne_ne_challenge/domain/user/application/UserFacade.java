@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.nenidan.ne_ne_challenge.domain.point.application.service.PointService;
 import com.github.nenidan.ne_ne_challenge.domain.user.application.client.oauth.OAuthClient;
 import com.github.nenidan.ne_ne_challenge.domain.user.application.client.oauth.OAuthClientFactory;
 import com.github.nenidan.ne_ne_challenge.domain.user.application.client.oauth.dto.OAuthUserInfo;
@@ -23,7 +24,6 @@ import com.github.nenidan.ne_ne_challenge.domain.user.application.service.JwtTok
 import com.github.nenidan.ne_ne_challenge.domain.user.application.service.UserSearchService;
 import com.github.nenidan.ne_ne_challenge.domain.user.domain.model.User;
 import com.github.nenidan.ne_ne_challenge.domain.user.domain.service.UserService;
-import com.github.nenidan.ne_ne_challenge.global.client.point.PointClient;
 import com.github.nenidan.ne_ne_challenge.global.dto.CursorResponse;
 
 import lombok.RequiredArgsConstructor;
@@ -37,7 +37,7 @@ public class UserFacade {
     private final UserSearchService userSearchService;
     private final CachedUserService cachedUserService;
     private final JwtTokenProvider jwtTokenProvider;
-    private final PointClient pointClient;
+    private final PointService pointService;
     private final OAuthClientFactory oauthClientFactory;
 
     public UserWithTokenResult join(JoinCommand joinCommand) {
@@ -46,7 +46,7 @@ public class UserFacade {
 
         User savedUser = userService.join(user);
 
-        pointClient.createPointWallet(savedUser.getId().getValue());
+        pointService.createPointWallet(savedUser.getId().getValue());
 
         return new UserWithTokenResult(
                 UserMapper.toDto(savedUser),
@@ -110,7 +110,7 @@ public class UserFacade {
 
         User savedUser = userService.oauthJoin(userInfo);
 
-        pointClient.createPointWallet(savedUser.getId().getValue());
+        pointService.createPointWallet(savedUser.getId().getValue());
 
         return new UserWithTokenResult(
                 UserMapper.toDto(savedUser),

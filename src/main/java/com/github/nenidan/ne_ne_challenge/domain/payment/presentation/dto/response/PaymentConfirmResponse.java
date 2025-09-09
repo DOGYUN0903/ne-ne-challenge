@@ -2,6 +2,8 @@ package com.github.nenidan.ne_ne_challenge.domain.payment.presentation.dto.respo
 
 import java.time.LocalDateTime;
 
+import com.github.nenidan.ne_ne_challenge.domain.payment.domain.model.Payment;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,4 +26,14 @@ public class PaymentConfirmResponse {
 
     @Schema(description = "결제 승인 일시", example = "2025-08-20T07:48:05.261Z")
     private LocalDateTime approvedAt;
+
+    public static PaymentConfirmResponse toDto(Payment payment) {
+        return new PaymentConfirmResponse(
+            payment.getOrderId().getValue(),
+            payment.getAmount().getValue(),
+            payment.getPaymentMethod(),
+            payment.getStatus().name(),
+            payment.getApprovedAt()
+        );
+    }
 }

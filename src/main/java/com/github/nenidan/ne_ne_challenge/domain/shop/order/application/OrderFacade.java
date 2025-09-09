@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
+import com.github.nenidan.ne_ne_challenge.domain.point.application.service.PointService;
 import com.github.nenidan.ne_ne_challenge.domain.shop.order.application.dto.CreateOrderCommand;
 import com.github.nenidan.ne_ne_challenge.domain.shop.order.application.dto.FindCursorOrderCommand;
 import com.github.nenidan.ne_ne_challenge.domain.shop.order.application.dto.OrderResult;
@@ -14,7 +15,6 @@ import com.github.nenidan.ne_ne_challenge.global.client.stock.StockRestClient;
 import com.github.nenidan.ne_ne_challenge.domain.shop.vo.OrderId;
 import com.github.nenidan.ne_ne_challenge.domain.shop.vo.ProductId;
 import com.github.nenidan.ne_ne_challenge.domain.shop.vo.UserId;
-import com.github.nenidan.ne_ne_challenge.global.client.point.PointClient;
 import com.github.nenidan.ne_ne_challenge.global.client.product.ProductRestClient;
 import com.github.nenidan.ne_ne_challenge.global.client.product.dto.ProductResponse;
 import com.github.nenidan.ne_ne_challenge.global.client.user.UserClient;
@@ -30,7 +30,7 @@ public class OrderFacade {
     private final OrderService orderService;
     private final ProductRestClient productRestClient;
     private final UserClient userClient;
-    private final PointClient pointClient;
+    private final PointService pointService;
     private final StockRestClient stockRestClient;
 
     public OrderResult createOrder (CreateOrderCommand createOrderRequest) {
@@ -51,7 +51,7 @@ public class OrderFacade {
             stockDecrease = true;
 
             // 4. 포인트 결제 호출
-            pointClient.decreasePoint(
+            pointService.decreasePoint(
                 user.getId(),
                 createOrderRequest.getQuantity() * product.getPrice(),
                 "PRODUCT_PURCHASE"
@@ -90,7 +90,7 @@ public class OrderFacade {
             // 결제된 포인트 -> 복구
             if (pointDecrease) {
                 // 포인트 결제 호출
-                pointClient.increasePoint(
+                pointService.increasePoint(
                     user.getId(),
                     createOrderRequest.getQuantity() * product.getPrice(),
                     "PRODUCT_REFUND"
@@ -117,7 +117,7 @@ public class OrderFacade {
             stockRestore = true;
 
             // 3. 포인트 복구
-            pointClient.increasePoint(
+            pointService.increasePoint(
                 userId,
                 order.getOrderDetail().getQuantity() * order.getOrderDetail().getPriceAtOrder(),
                 "PRODUCT_REFUND"
@@ -143,7 +143,7 @@ public class OrderFacade {
 
             if (pointRestore) {
                 // 3. 포인트 복구
-                pointClient.decreasePoint(
+                pointService.decreasePoint(
                     userId,
                     order.getOrderDetail().getQuantity() * order.getOrderDetail().getPriceAtOrder(),
                     "PRODUCT_PURCHASE"

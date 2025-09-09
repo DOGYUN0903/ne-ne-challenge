@@ -1,5 +1,7 @@
 package com.github.nenidan.ne_ne_challenge.domain.point.presentation.dto.response;
 
+import com.github.nenidan.ne_ne_challenge.domain.point.domain.model.PointTransaction;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,4 +21,13 @@ public class PointHistoryResponse {
 
     @Schema(description = "사유 설명", example = "포인트 결제")
     private String description;
+
+    public static PointHistoryResponse toDto(PointTransaction pointTransaction) {
+        return new PointHistoryResponse(
+            pointTransaction.getId(),
+            pointTransaction.getAmount(),
+            pointTransaction.getReason().name(),
+            pointTransaction.getDescription()
+        );
+    }
 }

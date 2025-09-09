@@ -3,6 +3,7 @@ package com.github.nenidan.ne_ne_challenge.domain.payment.presentation.dto.respo
 import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.github.nenidan.ne_ne_challenge.domain.payment.domain.model.Payment;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -36,4 +37,16 @@ public class PaymentSearchResponse {
 
     @Schema(description = "결제 실패 일시", example = "null")
     private LocalDateTime failedAt;
+
+    public static PaymentSearchResponse toDto(Payment payment) {
+        return new PaymentSearchResponse(
+            payment.getId(),
+            payment.getOrderId().getValue(),
+            payment.getAmount().getValue(),
+            payment.getStatus().name(),
+            payment.getPaymentMethod(),
+            payment.getApprovedAt(),
+            payment.getFailedAt()
+        );
+    }
 }

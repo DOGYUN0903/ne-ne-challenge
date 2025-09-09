@@ -2,6 +2,7 @@ package com.github.nenidan.ne_ne_challenge.domain.payment.presentation.dto.respo
 
 import java.time.LocalDateTime;
 
+import com.github.nenidan.ne_ne_challenge.domain.payment.domain.model.Payment;
 import com.github.nenidan.ne_ne_challenge.domain.payment.domain.type.PaymentStatus;
 
 import lombok.AllArgsConstructor;
@@ -34,4 +35,21 @@ public class PaymentStatisticsResponse {
     private LocalDateTime failedAt;
 
     private LocalDateTime canceledAt;
+
+    public static PaymentStatisticsResponse toDto(Payment payment) {
+        return new PaymentStatisticsResponse(
+            payment.getId(),
+            payment.getUserId(),
+            payment.getAmount().getValue(),
+            payment.getPaymentMethod(),
+            payment.getPaymentKey() != null ? payment.getPaymentKey().getValue() : null,
+            payment.getOrderId().getValue(),
+            payment.getStatus(),
+            payment.getCancelReason(),
+            payment.getRequestedAt(),
+            payment.getApprovedAt(),
+            payment.getFailedAt(),
+            payment.getCanceledAt()
+        );
+    }
 }

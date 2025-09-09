@@ -1,10 +1,14 @@
 package com.github.nenidan.ne_ne_challenge.domain.payment.presentation.dto.response;
 
+import com.github.nenidan.ne_ne_challenge.domain.payment.domain.model.Payment;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
+@NoArgsConstructor
 @Getter
 public class PaymentPrepareResponse {
 
@@ -16,5 +20,13 @@ public class PaymentPrepareResponse {
 
     @Schema(description = "주문 상품 이름", example = "포인트 10000원 충전")
     private String orderName;
+
+    public static PaymentPrepareResponse toDto(Payment payment) {
+        return new PaymentPrepareResponse(
+            payment.getAmount().getValue(),
+            payment.getOrderId().getValue(),
+            payment.getOrderName().getValue()
+        );
+    }
 }
 

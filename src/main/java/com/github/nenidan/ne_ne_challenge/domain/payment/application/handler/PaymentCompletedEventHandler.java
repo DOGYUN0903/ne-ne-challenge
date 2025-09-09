@@ -8,7 +8,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import com.github.nenidan.ne_ne_challenge.domain.payment.domain.event.PaymentCompletedEvent;
-import com.github.nenidan.ne_ne_challenge.global.client.point.PointClient;
+import com.github.nenidan.ne_ne_challenge.domain.point.application.service.PointService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class PaymentCompletedEventHandler {
 
-    private final PointClient pointClient;
+    private final PointService pointService;
 
     @EventListener
     @Async
@@ -30,7 +30,7 @@ public class PaymentCompletedEventHandler {
     )
     public void handlePointCharge(PaymentCompletedEvent event) {
         log.info("포인트 충전 시도: orderId = {}", event.getOrderId());
-        pointClient.chargePoint(
+        pointService.chargePoint(
             event.getUserId(),
             event.getAmount(),
             event.getReason(),
